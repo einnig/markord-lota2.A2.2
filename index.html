@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markorð - Lota 2 - A2.2</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            background-color: #f0f4f8; 
+            margin: 0;
+            padding: 2vh 5vw; 
+            min-height: 95vh; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+        .container { 
+            width: 100%; 
+            max-width: 1200px; 
+            background: white; 
+            padding: 30px 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            max-height: 100%;
+            overflow-y: auto;
+        }
+        h1 {
+            color: #1a73e8;
+            font-size: 2em;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        /* Framvindustika */
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            height: 20px;
+        }
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #34a853;
+            border-radius: 10px;
+            transition: width 0.5s ease-in-out;
+        }
+        
+        #counter { font-size: 1.2em; color: #666; font-weight: bold; margin-bottom: 10px; }
+
+        .lang-selector {
+            margin-bottom: 20px;
+            background: #fff3e0;
+            padding: 10px 15px;
+            border-radius: 10px;
+            display: inline-block;
+            border: 1px solid #ffcc80;
+        }
+
+        .lang-selector select {
+            padding: 8px;
+            font-size: 1.1em;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            margin-left: 10px;
+            max-width: 300px;
+        }
+        
+        #target { 
+            font-size: 4em; 
+            margin: 10px 0; 
+            color: #222; 
+            font-weight: bold;
+        }
+        
+        #is-explanation {
+            font-size: 1.2em;
+            color: #333;
+            background-color: #e8f0fe;
+            padding: 15px 25px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-bottom: 20px;
+            max-width: 80%;
+            line-height: 1.6;
+            text-align: left;
+        }
+
+        .btn { 
+            padding: 12px 25px; 
+            font-size: 1.2em; 
+            margin: 5px; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: 8px; 
+            background-color: #1a73e8; 
+            color: white; 
+            transition: 0.3s; 
+            font-weight: bold;
+        }
+        .btn:hover:not(:disabled) { background-color: #1557b0; transform: scale(1.02); }
+        .recording { background-color: #d93025; animation: pulse 1.5s infinite; }
+        .recording:hover { background-color: #b3140b; }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        #media-box { 
+            font-size: 1.1em; 
+            color: #444; 
+            text-align: left; 
+            background: #f8fbff; 
+            padding: 15px 30px; 
+            border-radius: 12px; 
+            line-height: 1.6; 
+            border-left: 6px solid #1a73e8; 
+            margin-top: 15px;
+            display: inline-block;
+            min-width: 70%;
+        }
+        #spoken {
+            margin-top: 15px; 
+            font-size: 1.4em;
+            font-style: italic; 
+            color: #555;
+        }
+        #result {
+            font-weight: bold; 
+            font-size: 1.8em; 
+            margin-top: 5px; 
+            color: #1a73e8;
+        }
+        .nav-btns { margin-top: 20px; }
+        
+        /* Fyrir nafnainnslátt */
+        #studentName {
+            font-size: 1.5em;
+            padding: 10px;
+            margin: 20px 0;
+            width: 80%;
+            max-width: 400px;
+            border: 2px solid #1a73e8;
+            border-radius: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+    <h1>Markorð - Lota 2 - A2.2</h1>
+    
+    <div class="progress-container">
+        <div id="progress-bar"></div>
+    </div>
+
+    <div class="lang-selector">
+        <label for="languageSelect"><b>🌍 Veldu tungumál:</b></label>
+        <select id="languageSelect" onchange="updateUI()">
+            <option value="da">Danska – Dansk</option>
+            <option value="en" selected>Enska – English</option>
+            <option value="tl">Filippseyska – Tagalog / Filipino</option>
+            <option value="fr">Franska – Français</option>
+            <option value="lv">Lettneska – Latviešu</option>
+            <option value="lt">Litháíska – Lietuvių</option>
+            <option value="no">Norska – Norsk</option>
+            <option value="pt">Portúgalska – Português</option>
+            <option value="pl">Pólska – Polski</option>
+            <option value="ro">Rúmenska – Română</option>
+            <option value="ru">Rússneska – Русский</option>
+            <option value="es">Spænska – Español</option>
+            <option value="sv">Sænska – Svenska</option>
+            <option value="th">Tælenska – ภาษาไทย</option>
+            <option value="uk">Úkraínska – Українська</option>
+            <option value="vi">Víetnamska – Tiếng Việt</option>
+        </select>
+    </div>
+
+    <div id="counter"></div>
+    
+    <div id="target"></div>
+    <div id="is-explanation"></div>
+    <br>
+    <button id="record-btn" class="btn" onclick="toggleRecord()">🎤 Tala</button>
+    
+    <div id="spoken"></div>
+    <div id="result"></div>
+
+    <div id="media-box"></div>
+
+    <div class="nav-btns">
+        <button class="btn" style="background-color: #5f6368;" onclick="prevExercise()">⬅️ Fyrri</button>
+        <button class="btn" style="background-color: #5f6368;" onclick="nextExercise()">Næsta ➡️</button>
+    </div>
+</div>
+
+<script>
+const exerciseData = [
+    { 
+        text: "meðferð", 
+        is_exp: "<b>Útskýring:</b> Hjálp hjá lækni eða sálfræðingi til að verða heilbrigður.<br><b>Samheiti:</b> lækning, aðhlynning.<br><b>Dæmi:</b> Hún fór í góða <b>meðferð</b> hjá lækninum.",
+        translations: {
+            "da": "<b>Danska (Dansk):</b> Forklaring: Hjælp hos en læge. Synonym: helbredelse. Eksempel: Hun fik en god <b>behandling</b> hos lægen.",
+            "en": "<b>Enska (English):</b> Explanation: Medical help to get well. Synonym: healing. Example: She received good <b>treatment</b> from the doctor.",
+            "tl": "<b>Filippseyska (Tagalog):</b> Paliwanag: Tulong medikal upang gumaling. Kasingkahulugan: pagpapagaling. Halimbawa: Nakatanggap siya ng magandang <b>paggamot</b> mula sa doktor.",
+            "fr": "<b>Franska (Français):</b> Explication: Aide médicale pour guérir. Synonyme: guérison. Exemple: Elle a reçu un bon <b>traitement</b> chez le médecin.",
+            "lv": "<b>Lettneska (Latviešu):</b> Paskaidrojums: Medicīniska palīdzība, lai izveseļotos. Sinonīms: ārstēšana. Piemērs: Viņa saņēma labu <b>ārstēšanu</b> pie ārsta.",
+            "lt": "<b>Litháíska (Lietuvių):</b> Paaiškinimas: Medicininė pagalba norint pasveikti. Sinonimas: gydymas. Pavyzdys: Ji gavo gerą <b>gydymą</b> pas gydytoją.",
+            "no": "<b>Norska (Norsk):</b> Forklaring: Hjelp hos en lege for å bli frisk. Synonym: helbredelse. Eksempel: Hun fikk god <b>behandling</b> hos legen.",
+            "pt": "<b>Portúgalska (Português):</b> Explicação: Ajuda médica para melhorar. Sinônimo: cura. Exemplo: Ela recebeu um bom <b>tratamento</b> do médico.",
+            "pl": "<b>Pólska (Polski):</b> Wyjaśnienie: Pomoc medyczna w celu wyzdrowienia. Synonim: leczenie. Przykład: Przeszła dobre <b>leczenie</b> u lekarza.",
+            "ro": "<b>Rúmenska (Română):</b> Explicație: Ajutor medical pentru a te face bine. Sinonim: vindecare. Exemplu: Ea a primit un <b>tratament</b> bun de la medic.",
+            "ru": "<b>Rússneska (Русский):</b> Объяснение: Медицинская помощь для выздоровления. Синоним: исцеление. Пример: Она прошла хорошее <b>лечение</b> у врача.",
+            "es": "<b>Spænska (Español):</b> Explicación: Ayuda médica para sanar. Sinónimo: curación. Ejemplo: Ella recibió un buen <b>tratamiento</b> del médico.",
+            "sv": "<b>Sænska (Svenska):</b> Förklaring: Hjälp av läkare för att bli frisk. Synonym: läkning. Exempel: Hon fick en bra <b>behandling</b> hos läkaren.",
+            "th": "<b>Tælenska (ภาษาไทย):</b> คำอธิบาย: ความช่วยเหลือทางการแพทย์เพื่อให้หายดี คำพ้องความหมาย: การรักษา ตัวอย่าง: เธอได้รับการ<b>รักษา</b>ที่ดีจากแพทย์",
+            "uk": "<b>Úkraínska (Українська):</b> Пояснення: Медична допомога для одужання. Синонім: зцілення. Приклад: Вона пройшла гарне <b>лікування</b> у лікаря.",
+            "vi": "<b>Víetnamska (Tiếng Việt):</b> Giải thích: Trợ giúp y tế để khỏe lại. Từ đồng nghĩa: chữa bệnh. Ví dụ: Cô ấy đã nhận được sự <b>điều trị</b> tốt từ bác sĩ."
+        }
+    },
+    { 
+        text: "sérstaklega", 
+        is_exp: "<b>Útskýring:</b> Mjög mikið, meira en annað.<br><b>Samheiti:</b> einkum, aðallega.<br><b>Dæmi:</b> Þetta er <b>sérstaklega</b> fallegt lag.",
+        translations: {
+            "da": "<b>Danska (Dansk):</b> Forklaring: Meget, mere end andet. Synonym: især. Eksempel: Dette er en <b>særligt</b> smuk sang.",
+            "en": "<b>Enska (English):</b> Explanation: Very much, more than other things. Synonym: particularly. Example: This is an <b>especially</b> beautiful song.",
+            "tl": "<b>Filippseyska (Tagalog):</b> Paliwanag: Sobra, higit sa iba. Kasingkahulugan: partikular. Halimbawa: Ito ay isang <b>lalong</b> magandang kanta.",
+            "fr": "<b>Franska (Français):</b> Explication: Beaucoup, plus que d'autres choses. Synonyme: particulièrement. Exemple: C'est une chanson <b>particulièrement</b> belle.",
+            "lv": "<b>Lettneska (Latviešu):</b> Paskaidrojums: Ļoti daudz, vairāk nekā cits. Sinonīms: īpaši. Piemērs: Šī ir <b>īpaši</b> skaista dziesma.",
+            "lt": "<b>Litháíska (Lietuvių):</b> Paaiškinimas: Labai daug, daugiau nei kiti. Sinonimas: ypač. Pavyzdys: Tai <b>ypač</b> graži daina.",
+            "no": "<b>Norska (Norsk):</b> Forklaring: Veldig mye, mer enn annet. Synonym: spesielt. Eksempel: Dette er en <b>spesielt</b> vakker sang.",
+            "pt": "<b>Portúgalska (Português):</b> Explicação: Muito, mais do que outras coisas. Sinônimo: particularmente. Exemplo: Esta é uma música <b>especialmente</b> linda.",
+            "pl": "<b>Pólska (Polski):</b> Wyjaśnienie: Bardzo, więcej niż inne rzeczy. Synonim: w szczególności. Przykład: To jest <b>szczególnie</b> piękna piosenka.",
+            "ro": "<b>Rúmenska (Română):</b> Explicație: Foarte mult, mai mult decât altele. Sinonim: în special. Exemplu: Acesta este un cântec <b>deosebit de</b> frumos.",
+            "ru": "<b>Rússneska (Русский):</b> Объяснение: Очень много, больше, чем другое. Синоним: в частности. Пример: Это <b>особенно</b> красивая песня.",
+            "es": "<b>Spænska (Español):</b> Explicación: Mucho, más que otras cosas. Sinónimo: particularmente. Ejemplo: Esta es una canción <b>especialmente</b> hermosa.",
+            "sv": "<b>Sænska (Svenska):</b> Förklaring: Mycket, mer än annat. Synonym: i synnerhet. Exempel: Detta är en <b>särskilt</b> vacker låt.",
+            "th": "<b>Tælenska (ภาษาไทย):</b> คำอธิบาย: มาก มากกว่าสิ่งอื่น คำพ้องความหมาย: โดยเฉพาะ ตัวอย่าง: นี่เป็นเพลงที่ไพเราะ<b>เป็นพิเศษ</b>",
+            "uk": "<b>Úkraínska (Українська):</b> Пояснення: Дуже багато, більше ніж інше. Синонім: зокрема. Приклад: Це <b>особливо</b> гарна пісня.",
+            "vi": "<b>Víetnamska (Tiếng Việt):</b> Giải thích: Rất nhiều, hơn những thứ khác. Từ đồng nghĩa: đặc biệt. Ví dụ: Đây là một bài hát <b>đặc biệt</b> hay."
+        }
+    },
+    { 
+        text: "heimild", 
+        is_exp: "<b>Útskýring:</b> Leyfi til að gera eitthvað, eða staður sem upplýsingar koma frá.<br><b>Samheiti:</b> leyfi.<br><b>Dæmi:</b> Þú þarft <b>heimild</b> frá kennaranum.",
+        translations: {
+            "da": "<b>Danska (Dansk):</b> Forklaring: Tilladelse til at gøre noget. Synonym: lov. Eksempel: Du har brug for <b>tilladelse</b> fra læreren.",
+            "en": "<b>Enska (English):</b> Explanation: Permission to do something. Synonym: consent. Example: You need <b>permission</b> from the teacher.",
+            "tl": "<b>Filippseyska (Tagalog):</b> Paliwanag: Pahintulot na gumawa ng isang bagay. Kasingkahulugan: permiso. Halimbawa: Kailangan mo ng <b>pahintulot</b> mula sa guro.",
+            "fr": "<b>Franska (Français):</b> Explication: Permission de faire quelque chose. Synonyme: autorisation. Exemple: Tu as besoin de la <b>permission</b> du professeur.",
+            "lv": "<b>Lettneska (Latviešu):</b> Paskaidrojums: Atļauja kaut ko darīt. Sinonīms: atļauja. Piemērs: Tev nepieciešama <b>atļauja</b> no skolotāja.",
+            "lt": "<b>Litháíska (Lietuvių):</b> Paaiškinimas: Leidimas kažką daryti. Sinonimas: sutikimas. Pavyzdys: Tau reikia mokytojo <b>leidimo</b>.",
+            "no": "<b>Norska (Norsk):</b> Forklaring: Tillatelse til å gjøre noe. Synonym: godkjennelse. Eksempel: Du trenger <b>tillatelse</b> fra læreren.",
+            "pt": "<b>Portúgalska (Português):</b> Explicação: Permissão para fazer algo. Sinônimo: autorização. Exemplo: Você precisa de <b>permissão</b> do professor.",
+            "pl": "<b>Pólska (Polski):</b> Wyjaśnienie: Pozwolenie na zrobienie czegoś. Synonim: zgoda. Przykład: Potrzebujesz <b>pozwolenia</b> od nauczyciela.",
+            "ro": "<b>Rúmenska (Română):</b> Explicație: Permisiunea de a face ceva. Sinonim: autorizație. Exemplu: Ai nevoie de <b>permisiunea</b> profesorului.",
+            "ru": "<b>Rússneska (Русский):</b> Объяснение: Разрешение что-то сделать. Синоним: согласие. Пример: Тебе нужно <b>разрешение</b> от учителя.",
+            "es": "<b>Spænska (Español):</b> Explicación: Permiso para hacer algo. Sinónimo: autorización. Ejemplo: Necesitas <b>permiso</b> del profesor.",
+            "sv": "<b>Sænska (Svenska):</b> Förklaring: Tillåtelse att göra något. Synonym: lov. Exempel: Du behöver <b>tillstånd</b> från läraren.",
+            "th": "<b>Tælenska (ภาษาไทย):</b> คำอธิบาย: การอนุญาตให้ทำบางสิ่ง คำพ้องความหมาย: ความยินยอม ตัวอย่าง: คุณต้องได้รับ<b>อนุญาต</b>จากครู",
+            "uk": "<b>Úkraínska (Українська):</b> Пояснення: Дозвіл щось зробити. Синонім: згода. Приклад: Тобі потрібен <b>дозвіл</b> від вчителя.",
+            "vi": "<b>Víetnamska (Tiếng Việt):</b> Giải thích: Sự cho phép để làm điều gì đó. Từ đồng nghĩa: giấy phép. Ví dụ: Bạn cần sự <b>cho phép</b> của giáo viên."
+        }
+    },
+    { 
+        text: "greina", 
+        is_exp: "<b>Útskýring:</b> Að skoða eitthvað mjög vel til að skilja það.<br><b>Samheiti:</b> rannsaka, skoða.<br><b>Dæmi:</b> Við ætlum að <b>greina</b> orðin í textanum.",
+        translations: {
+            "da": "<b>Danska (Dansk):</b> Forklaring: At undersøge noget meget nøje. Synonym: studere. Eksempel: Vi skal <b>analysere</b> ordene i teksten.",
+            "en": "<b>Enska (English):</b> Explanation: To look at something very closely. Synonym: investigate. Example: We are going to <b>analyze</b> the words in the text.",
+            "tl": "<b>Filippseyska (Tagalog):</b> Paliwanag: Suriin nang mabuti ang isang bagay. Kasingkahulugan: imbestigahan. Halimbawa: Susuriin natin (o <b>aanalisahin</b>) ang mga salita sa teksto.",
+            "fr": "<b>Franska (Français):</b> Explication: Regarder quelque chose de très près. Synonyme: examiner. Exemple: Nous allons <b>analyser</b> les mots dans le texte.",
+            "lv": "<b>Lettneska (Latviešu):</b> Paskaidrojums: Ļoti rūpīgi aplūkot kaut ko. Sinonīms: izpētīt. Piemērs: Mēs gatavojamies <b>analizēt</b> vārdus tekstā.",
+            "lt": "<b>Litháíska (Lietuvių):</b> Paaiškinimas: Labai atidžiai į kažką žiūrėti. Sinonimas: tirti. Pavyzdys: Mes ruošiamės <b>analizuoti</b> žodžius tekste.",
+            "no": "<b>Norska (Norsk):</b> Forklaring: Å undersøke noe veldig nøye. Synonym: studere. Eksempel: Vi skal <b>analysere</b> ordene i teksten.",
+            "pt": "<b>Portúgalska (Português):</b> Explicação: Olhar para algo muito de perto. Sinônimo: investigar. Exemplo: Vamos <b>analisar</b> as palavras no texto.",
+            "pl": "<b>Pólska (Polski):</b> Wyjaśnienie: Przyglądać się czemuś bardzo uważnie. Synonim: badać. Przykład: Zamierzamy <b>przeanalizować</b> słowa w tekście.",
+            "ro": "<b>Rúmenska (Română):</b> Explicație: A privi ceva foarte atent. Sinonim: a investiga. Exemplu: Vom <b>analiza</b> cuvintele din text.",
+            "ru": "<b>Rússneska (Русский):</b> Объяснение: Очень внимательно изучить что-то. Синоним: исследовать. Пример: Мы собираемся <b>проанализировать</b> слова в тексте.",
+            "es": "<b>Spænska (Español):</b> Explicación: Mirar algo muy de cerca. Sinónimo: investigar. Ejemplo: Vamos a <b>analizar</b> las palabras en el texto.",
+            "sv": "<b>Sænska (Svenska):</b> Förklaring: Att undersöka något mycket noga. Synonym: studera. Exempel: Vi ska <b>analysera</b> orden i texten.",
+            "th": "<b>Tælenska (ภาษาไทย):</b> คำอธิบาย: พิจารณาบางสิ่งอย่างใกล้ชิด คำพ้องความหมาย: ตรวจสอบ ตัวอย่าง: เรากำลังจะ<b>วิเคราะห์</b>คำในข้อความ",
+            "uk": "<b>Úkraínska (Українська):</b> Пояснення: Дуже уважно розглянути щось. Синонім: досліджувати. Приклад: Ми збираємося <b>проаналізувати</b> слова в тексті.",
+            "vi": "<b>Víetnamska (Tiếng Việt):</b> Giải thích: Nhìn rất kỹ vào một cái gì đó. Từ đồng nghĩa: điều tra. Ví dụ: Chúng ta sẽ <b>phân tích</b> các từ trong văn bản."
+        }
+    },
+    { 
+        text: "jafnvel", 
+        is_exp: "<b>Útskýring:</b> Líka, meira að segja.<br><b>Samheiti:</b> til og með.<br><b>Dæmi:</b> Hann spilar á gítar og syngur <b>jafnvel</b> líka.",
+        translations: {
+            "da": "<b>Danska (Dansk):</b> Forklaring: Også, til og med. Synonym: inklusive. Eksempel: Han spiller guitar og synger <b>endda</b> også.",
+            "en": "<b>Enska (English):</b> Explanation: Also, used to show surprise. Synonym: including. Example: He plays the guitar and <b>even</b> sings too.",
+            "tl": "<b>Filippseyska (Tagalog):</b> Paliwanag: Gayundin, ginagamit upang magpakita ng pagkagulat. Kasingkahulugan: kabilang. Halimbawa: Tumutugtog siya ng gitara at <b>kahit</b> kumakanta rin.",
+            "fr": "<b>Franska (Français):</b> Explication: Aussi, même. Synonyme: y compris. Exemple: Il joue de la guitare et chante <b>même</b> aussi.",
+            "lv": "<b>Lettneska (Latviešu):</b> Paskaidrojums: Arī, pat. Sinonīms: ieskaitot. Piemērs: Viņš spēlē ģitāru un <b>pat</b> dzied.",
+            "lt": "<b>Litháíska (Lietuvių):</b> Paaiškinimas: Taip pat, net. Sinonimas: įskaitant. Pavyzdys: Jis groja gitara ir <b>net</b> dainuoja.",
+            "no": "<b>Norska (Norsk):</b> Forklaring: Også, til og med. Synonym: inklusive. Eksempel: Han spiller gitar og synger <b>til og med</b> også.",
+            "pt": "<b>Portúgalska (Português):</b> Explicação: Também, até mesmo. Sinônimo: incluindo. Exemplo: Ele toca violão e <b>até</b> canta também.",
+            "pl": "<b>Pólska (Polski):</b> Wyjaśnienie: Także, nawet. Synonim: włącznie. Przykład: On gra na gitarze, a <b>nawet</b> śpiewa.",
+            "ro": "<b>Rúmenska (Română):</b> Explicație: De asemenea, chiar. Sinonim: inclusiv. Exemplu: El cântă la chitară și <b>chiar</b> cântă cu vocea.",
+            "ru": "<b>Rússneska (Русский):</b> Объяснение: Также, даже. Синоним: включая. Пример: Он играет на гитаре и <b>даже</b> поет.",
+            "es": "<b>Spænska (Español):</b> Explicación: También, incluso. Sinónimo: incluyendo. Ejemplo: Él toca la guitarra e <b>incluso</b> canta también.",
+            "sv": "<b>Sænska (Svenska):</b> Förklaring: Också, till och med. Synonym: inklusive. Exempel: Han spelar gitarr och sjunger <b>till och med</b> också.",
+            "th": "<b>Tælenska (ภาษาไทย):</b> คำอธิบาย: ด้วย, แม้กระทั่ง คำพ้องความหมาย: รวมไปถึง ตัวอย่าง: เขาเล่นกีตาร์และ<b>แม้กระทั่ง</b>ร้องเพลงด้วย",
+            "uk": "<b>Úkraínska (Українська):</b> Пояснення: Також, навіть. Синонім: включаючи. Приклад: Він грає на гітарі і <b>навіть</b> співає.",
+            "vi": "<b>Víetnamska (Tiếng Việt):</b> Giải thích: Cũng, thậm chí. Từ đồng nghĩa: bao gồm. Ví dụ: Anh ấy chơi guitar và <b>thậm chí</b> còn hát nữa."
+        }
+    },
+    { 
+        text: "tengja", 
+        is_exp: "<b>Útskýring:</b> Að setja eitthvað saman svo það virki eða vinni saman.<br><b>Samheiti:</b> sameina, setja í samband.<br><b>Dæmi:</b> Viltu <b>tengja</b> tölvuna við netið?",
+        translations: {
+            "da": "<b>Danska (Dansk):</b> Forklaring: At sætte noget sammen, så det virker. Synonym: forbinde. Eksempel: Vil du <b>tilslutte</b> computeren til nettet?",
+            "en": "<b>Enska (English):</b> Explanation: To put something together so it works. Synonym: link. Example: Do you want to <b>connect</b> the computer to the internet?",
+            "tl": "<b>Filippseyska (Tagalog):</b> Paliwanag: Pagsamahin ang isang bagay upang gumana. Kasingkahulugan: iugnay. Halimbawa: Gusto mo bang <b>ikonekta</b> ang computer sa internet?",
+            "fr": "<b>Franska (Français):</b> Explication: Mettre quelque chose ensemble pour que ça marche. Synonyme: relier. Exemple: Veux-tu <b>connecter</b> l'ordinateur à internet ?",
+            "lv": "<b>Lettneska (Latviešu):</b> Paskaidrojums: Savienot kaut ko, lai tas darbotos. Sinonīms: saistīt. Piemērs: Vai vēlaties <b>pievienot</b> datoru internetam?",
+            "lt": "<b>Litháíska (Lietuvių):</b> Paaiškinimas: Sujungti kažką, kad veiktų. Sinonimas: susieti. Pavyzdys: Ar nori <b>prijungti</b> kompiuterį prie interneto?",
+            "no": "<b>Norska (Norsk):</b> Forklaring: Å koble noe sammen slik at det virker. Synonym: forbinde. Eksempel: Vil du <b>koble</b> datamaskinen til nettet?",
+            "pt": "<b>Portúgalska (Português):</b> Explicação: Juntar algo para que funcione. Sinônimo: ligar. Exemplo: Você quer <b>conectar</b> o computador à internet?",
+            "pl": "<b>Pólska (Polski):</b> Wyjaśnienie: Złożyć coś, aby działało. Synonim: łączyć. Przykład: Czy chcesz <b>podłączyć</b> komputer do internetu?",
+            "ro": "<b>Rúmenska (Română):</b> Explicație: A pune ceva împreună pentru a funcționa. Sinonim: a lega. Exemplu: Vrei să <b>conectezi</b> computerul la internet?",
+            "ru": "<b>Rússneska (Русский):</b> Объяснение: Соединить что-то, чтобы это работало. Синоним: связывать. Пример: Хочешь <b>подключить</b> компьютер к интернету?",
+            "es": "<b>Spænska (Español):</b> Explicación: Unir algo para que funcione. Sinónimo: enlazar. Ejemplo: ¿Quieres <b>conectar</b> la computadora a internet?",
+            "sv": "<b>Sænska (Svenska):</b> Förklaring: Att sätta ihop något så att det fungerar. Synonym: förbinda. Exempel: Vill du <b>ansluta</b> datorn till nätet?",
+            "th": "<b>Tælenska (ภาษาไทย):</b> คำอธิบาย: ประกอบสิ่งต่างๆ เข้าด้วยกันเพื่อให้ทำงานได้ คำพ้องความหมาย: เชื่อมโยง ตัวอย่าง: คุณต้องการ<b>เชื่อมต่อ</b>คอมพิวเตอร์กับอินเทอร์เน็ตหรือไม่?",
+            "uk": "<b>Úkraínska (Українська):</b> Пояснення: З'єднати щось, щоб це працювало. Синонім: зв'язувати. Приклад: Хочеш <b>підключити</b> комп'ютер до інтернету?",
+            "vi": "<b>Víetnamska (Tiếng Việt):</b> Giải thích: Ghép một cái gì đó lại với nhau để nó hoạt động. Từ đồng nghĩa: liên kết. Ví dụ: Bạn có muốn <b>kết nối</b> máy tính với internet không?"
+        }
+    },
+    { 
+        text: "hugmynd", 
+        is_exp: "<b>Útskýring:</b> Eitthvað sem manni dettur í hug, lausn eða tillaga.<br><b>Samheiti:</b> hugsun, tillaga.<br><b>Dæmi:</b> Þetta er mjög góð <b>hugmynd</b> að nýju verkefni.",
+        translations: {
+            "da": "<b>Danska (Dansk):</b> Forklaring: Noget, man kommer i tanke om. Synonym: forslag. Eksempel: Dette er en meget god <b>idé</b> til et nyt projekt.",
+            "en": "<b>Enska (English):</b> Explanation: Something that comes to mind. Synonym: proposal. Example: This is a very good <b>idea</b> for a new project.",
+            "tl": "<b>Filippseyska (Tagalog):</b> Paliwanag: Isang bagay na pumasok sa isip. Kasingkahulugan: panukala. Halimbawa: Ito ay isang napakagandang <b>ideya</b> para sa isang bagong proyekto.",
+            "fr": "<b>Franska (Français):</b> Explication: Quelque chose qui vient à l'esprit. Synonyme: proposition. Exemple: C'est une très bonne <b>idée</b> pour un nouveau projet.",
+            "lv": "<b>Lettneska (Latviešu):</b> Paskaidrojums: Kaut kas, kas ienāk prātā. Sinonīms: priekšlikums. Piemērs: Šī ir ļoti laba <b>ideja</b> jaunam projektam.",
+            "lt": "<b>Litháíska (Lietuvių):</b> Paaiškinimas: Kažkas, kas ateina į galvą. Sinonimas: pasiūlymas. Pavyzdys: Tai labai gera <b>idėja</b> naujam projektui.",
+            "no": "<b>Norska (Norsk):</b> Forklaring: Noe man tenker på. Synonym: forslag. Eksempel: Dette er en veldig god <b>idé</b> til et nytt prosjekt.",
+            "pt": "<b>Portúgalska (Português):</b> Explicação: Algo que vem à mente. Sinônimo: proposta. Exemplo: Esta é uma <b>ideia</b> muito boa para um novo projeto.",
+            "pl": "<b>Pólska (Polski):</b> Wyjaśnienie: Coś, co przychodzi na myśl. Synonim: propozycja. Przykład: To bardzo dobry <b>pomysł</b> na nowy projekt.",
+            "ro": "<b>Rúmenska (Română):</b> Explicație: Ceva care îți vine în minte. Sinonim: propunere. Exemplu: Aceasta este o <b>idee</b> foarte bună pentru un nou proiect.",
+            "ru": "<b>Rússneska (Русский):</b> Объяснение: То, что приходит на ум. Синоним: предложение. Пример: Это очень хорошая <b>идея</b> для нового проекта.",
+            "es": "<b>Spænska (Español):</b> Explicación: Algo que se te ocurre. Sinónimo: propuesta. Ejemplo: Esta es una muy buena <b>idea</b> para un nuevo proyecto.",
+            "sv": "<b>Sænska (Svenska):</b> Förklaring: Något man tänker på. Synonym: förslag. Exempel: Detta är en mycket bra <b>idé</b> för ett nytt projekt.",
+            "th": "<b>Tælenska (ภาษาไทย):</b> คำอธิบาย: สิ่งที่ผุดขึ้นมาในหัว คำพ้องความหมาย: ข้อเสนอ ตัวอย่าง: นี่เป็น<b>ไอเดีย</b>ที่ดีมากสำหรับโปรเจกต์ใหม่",
+            "uk": "<b>Úkraínska (Українська):</b> Пояснення: Те, що спадає на думку. Синонім: пропозиція. Приклад: Це дуже хороша <b>ідея</b> для нового проекту.",
+            "vi": "<b>Víetnamska (Tiếng Việt):</b> Giải thích: Điều gì đó nảy ra trong đầu. Từ đồng nghĩa: đề xuất. Ví dụ: Đây là một <b>ý tưởng</b> rất hay cho một dự án mới."
+        }
+    },
+    { 
+        text: "bæta", 
+        is_exp: "<b>Útskýring:</b> Að gera eitthvað betra en það var.<br><b>Samheiti:</b> laga, betrumbæta.<br><b>Dæmi:</b> Við ætlum að reyna að <b>bæta</b> okkur í íslensku.",
+        translations: {
+            "da": "<b>Danska (Dansk):</b> Forklaring: At gøre noget bedre. Synonym: reparere. Eksempel: Vi vil forsøge at <b>forbedre</b> os i islandsk.",
+            "en": "<b>Enska (English):</b> Explanation: To make something better. Synonym: fix. Example: We are going to try to <b>improve</b> ourselves in Icelandic.",
+            "tl": "<b>Filippseyska (Tagalog):</b> Paliwanag: Para mas pagandahin ang isang bagay. Kasingkahulugan: ayusin. Halimbawa: Susubukan nating <b>pagbutihin</b> ang ating sarili sa Icelandic.",
+            "fr": "<b>Franska (Français):</b> Explication: Rendre quelque chose meilleur. Synonyme: réparer. Exemple: Nous allons essayer de nous <b>améliorer</b> en islandais.",
+            "lv": "<b>Lettneska (Latviešu):</b> Paskaidrojums: Padarīt kaut ko labāku. Sinonīms: labot. Piemērs: Mēs mēģināsim <b>uzlabot</b> savas zināšanas islandiešu valodā.",
+            "lt": "<b>Litháíska (Lietuvių):</b> Paaiškinimas: Padaryti kažką geresnio. Sinonimas: taisyti. Pavyzdys: Mes bandysime <b>patobulėti</b> islandų kalboje.",
+            "no": "<b>Norska (Norsk):</b> Forklaring: Å gjøre noe bedre. Synonym: fikse. Eksempel: Vi skal prøve å <b>forbedre</b> oss i islandsk.",
+            "pt": "<b>Portúgalska (Português):</b> Explicação: Tornar algo melhor. Sinônimo: consertar. Exemplo: Vamos tentar nos <b>melhorar</b> em islandês.",
+            "pl": "<b>Pólska (Polski):</b> Wyjaśnienie: Zrobić coś lepiej. Synonim: naprawić. Przykład: Postaramy się <b>poprawić</b> nasz islandzki.",
+            "ro": "<b>Rúmenska (Română):</b> Explicație: A face ceva mai bun. Sinonim: a repara. Exemplu: Vom încerca să ne <b>îmbunătățim</b> la islandeză.",
+            "ru": "<b>Rússneska (Русский):</b> Объяснение: Сделать что-то лучше. Синоним: исправить. Пример: Мы постараемся <b>улучшить</b> наш исландский.",
+            "es": "<b>Spænska (Español):</b> Explicación: Hacer algo mejor. Sinónimo: arreglar. Ejemplo: Vamos a intentar <b>mejorar</b> en islandés.",
+            "sv": "<b>Sænska (Svenska):</b> Förklaring: Att göra något bättre. Synonym: laga. Exempel: Vi ska försöka <b>förbättra</b> oss i isländska.",
+            "th": "<b>Tælenska (ภาษาไทย):</b> คำอธิบาย: ทำให้บางสิ่งดีขึ้น คำพ้องความหมาย: แก้ไข ตัวอย่าง: เราจะพยายาม<b>ปรับปรุง</b>ภาษาไอซ์แลนด์ของเรา",
+            "uk": "<b>Úkraínska (Українська):</b> Пояснення: Зробити щось кращим. Синонім: виправити. Приклад: Ми постараємося <b>покращити</b> нашу ісландську.",
+            "vi": "<b>Víetnamska (Tiếng Việt):</b> Giải thích: Làm cho một cái gì đó tốt hơn. Từ đồng nghĩa: sửa chữa. Ví dụ: Chúng tôi sẽ cố gắng <b>cải thiện</b> tiếng Iceland của mình."
+        }
+    },
+    { 
+        text: "almennur", 
+        is_exp: "<b>Útskýring:</b> Fyrir alla fólk eða eitthvað sem er mjög venjulegt.<br><b>Samheiti:</b> venjulegur, algengur.<br><b>Dæmi:</b> Þetta er <b>almennur</b> frídagur.",
+        translations: {
+            "da": "<b>Danska (Dansk):</b> Forklaring: For alle, normal. Synonym: almindelig. Eksempel: Dette er en <b>offentlig</b> fridag.",
+            "en": "<b>Enska (English):</b> Explanation: For everyone, normal. Synonym: common. Example: This is a <b>public</b> holiday.",
+            "tl": "<b>Filippseyska (Tagalog):</b> Paliwanag: Para sa lahat, normal. Kasingkahulugan: karaniwan. Halimbawa: Ito ay isang <b>pampublikong</b> pista opisyal.",
+            "fr": "<b>Franska (Français):</b> Explication: Pour tout le monde, normal. Synonyme: commun. Exemple: C'est un jour férié <b>public</b> (ou général).",
+            "lv": "<b>Lettneska (Latviešu):</b> Paskaidrojums: Visiem, normāls. Sinonīms: parasts. Piemērs: Šī ir <b>vispārēja</b> brīvdiena.",
+            "lt": "<b>Litháíska (Lietuvių):</b> Paaiškinimas: Visiems, normalus. Sinonimas: bendras. Pavyzdys: Tai <b>visuotinė</b> šventė.",
+            "no": "<b>Norska (Norsk):</b> Forklaring: For alle, normal. Synonym: vanlig. Eksempel: Dette er en <b>offentlig</b> fridag.",
+            "pt": "<b>Portúgalska (Português):</b> Explicação: Para todos, normal. Sinônimo: comum. Exemplo: Este é um feriado <b>público</b>.",
+            "pl": "<b>Pólska (Polski):</b> Wyjaśnienie: Dla wszystkich, normalny. Synonim: powszechny. Przykład: To jest <b>powszechny</b> (państwowy) dzień wolny.",
+            "ro": "<b>Rúmenska (Română):</b> Explicație: Pentru toată lumea, normal. Sinonim: comun. Exemplu: Aceasta este o sărbătoare <b>publică</b>.",
+            "ru": "<b>Rússneska (Русский):</b> Объяснение: Для всех, обычный. Синоним: общий. Пример: Это <b>общественный</b> праздник.",
+            "es": "<b>Spænska (Español):</b> Explicación: Para todos, normal. Sinónimo: común. Ejemplo: Este es un día festivo <b>público</b> (o general).",
+            "sv": "<b>Sænska (Svenska):</b> Förklaring: För alla, normal. Synonym: allmän. Exempel: Detta är en <b>allmän</b> helgdag.",
+            "th": "<b>Tælenska (ภาษาไทย):</b> คำอธิบาย: สำหรับทุกคน ปกติ คำพ้องความหมาย: ทั่วไป ตัวอย่าง: นี่คือวันหยุด<b>สาธารณะ</b>",
+            "uk": "<b>Úkraínska (Українська):</b> Пояснення: Для всіх, звичайний. Синонім: загальний. Приклад: Це <b>державне</b> свято.",
+            "vi": "<b>Víetnamska (Tiếng Việt):</b> Giải thích: Dành cho mọi người, bình thường. Từ đồng nghĩa: chung. Ví dụ: Đây là ngày nghỉ lễ <b>chung</b>."
+        }
+    },
+    { 
+        text: "hlutverk", 
+        is_exp: "<b>Útskýring:</b> Verkefni, starf eða það sem einhver á að gera.<br><b>Samheiti:</b> verkefni, starf.<br><b>Dæmi:</b> Kennarinn hefur mjög mikilvægt <b>hlutverk</b>.",
+        translations: {
+            "da": "<b>Danska (Dansk):</b> Forklaring: En opgave, nogen skal udføre. Synonym: pligt. Eksempel: Læreren har en meget vigtig <b>rolle</b>.",
+            "en": "<b>Enska (English):</b> Explanation: A task or job someone has to do. Synonym: duty. Example: The teacher has a very important <b>role</b>.",
+            "tl": "<b>Filippseyska (Tagalog):</b> Paliwanag: Isang gawain o trabahong dapat gawin ng isang tao. Kasingkahulugan: tungkulin. Halimbawa: Ang guro ay may napakahalagang <b>papel</b>.",
+            "fr": "<b>Franska (Français):</b> Explication: Une tâche qu'on doit accomplir. Synonyme: devoir. Exemple: Le professeur a un <b>rôle</b> très important.",
+            "lv": "<b>Lettneska (Latviešu):</b> Paskaidrojums: Uzdevums vai darbs, kas kādam jādara. Sinonīms: pienākums. Piemērs: Skolotājam ir ļoti svarīga <b>loma</b>.",
+            "lt": "<b>Litháíska (Lietuvių):</b> Paaiškinimas: Užduotis ar darbas, kurį kažkas turi atlikti. Sinonimas: pareiga. Pavyzdys: Mokytojas turi labai svarbų <b>vaidmenį</b>.",
+            "no": "<b>Norska (Norsk):</b> Forklaring: En oppgave eller jobb noen må gjøre. Synonym: plikt. Eksempel: Læreren har en veldig viktig <b>rolle</b>.",
+            "pt": "<b>Portúgalska (Português):</b> Explicação: Uma tarefa ou trabalho que alguém tem que fazer. Sinônimo: dever. Exemplo: O professor tem um <b>papel</b> muito importante.",
+            "pl": "<b>Pólska (Polski):</b> Wyjaśnienie: Zadanie lub praca do wykonania. Synonim: obowiązek. Przykład: Nauczyciel ma bardzo ważną <b>rolę</b>.",
+            "ro": "<b>Rúmenska (Română):</b> Explicație: O sarcină sau o muncă pe care cineva trebuie să o facă. Sinonim: datorie. Exemplu: Profesorul are un <b>rol</b> foarte important.",
+            "ru": "<b>Rússneska (Русский):</b> Объяснение: Задача или работа, которую кто-то должен выполнить. Синоним: обязанность. Пример: У учителя очень важная <b>роль</b>.",
+            "es": "<b>Spænska (Español):</b> Explicación: Una tarea o trabajo que alguien tiene que hacer. Sinónimo: deber. Ejemplo: El profesor tiene un <b>rol</b> muy importante.",
+            "sv": "<b>Sænska (Svenska):</b> Förklaring: En uppgift eller ett jobb någon måste göra. Synonym: plikt. Exempel: Läraren har en mycket viktig <b>roll</b>.",
+            "th": "<b>Tælenska (ภาษาไทย):</b> คำอธิบาย: งานหรือหน้าที่ที่ต้องทำ คำพ้องความหมาย: หน้าที่ ตัวอย่าง: ครูมี<b>บทบาท</b>สำคัญมาก",
+            "uk": "<b>Úkraínska (Українська):</b> Пояснення: Завдання або робота, яку хтось має виконати. Синонім: обов'язок. Приклад: У вчителя дуже важлива <b>роль</b>.",
+            "vi": "<b>Víetnamska (Tiếng Việt):</b> Giải thích: Một nhiệm vụ hoặc công việc ai đó phải làm. Từ đồng nghĩa: bổn phận. Ví dụ: Giáo viên có một <b>vai trò</b> rất quan trọng."
+        }
+    }
+];
+
+let userScores = new Array(exerciseData.length).fill(null);
+let userSpoken = new Array(exerciseData.length).fill("");
+
+let currentIndex = 0;
+let recognition;
+let isRecording = false;
+let autoAdvanceTimer = null;
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.lang = 'is-IS';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    
+    // Slökkt sjálfkrafa þegar talningu eða þögn er lokið
+    recognition.onend = () => {
+        isRecording = false;
+        const btn = document.getElementById('record-btn');
+        if (btn) {
+            btn.innerText = "🎤 Tala";
+            btn.classList.remove('recording');
+        }
+        
+        // Hreinsa stöðutexta ef ekkert orð fannst
+        const resDiv = document.getElementById('result');
+        if (resDiv && resDiv.innerText === "Hlusta...") {
+            resDiv.innerText = "";
+        }
+    };
+} else {
+    alert("Þessi vafri styður ekki talgreiningu. Notaðu Chrome eða Edge á tölvu.");
+}
+
+window.onload = () => { 
+    updateUI(); 
+};
+
+function updateProgress() {
+    let correctCount = 0;
+    for (let i = 0; i < userScores.length; i++) {
+        if (userScores[i] === 100) {
+            correctCount++;
+        }
+    }
+    const percent = (correctCount / exerciseData.length) * 100;
+    
+    const progressBar = document.getElementById('progress-bar');
+    if(progressBar) {
+        progressBar.style.width = percent + '%';
+    }
+    return correctCount;
+}
+
+function findNextUnfinished() {
+    for (let i = 0; i < userScores.length; i++) {
+        if (userScores[i] !== 100) {
+            currentIndex = i;
+            break;
+        }
+    }
+    
+    // Endurbyggja HTML-ið fyrir appið ef notandi fór til baka til að laga einkunn
+    document.getElementById('app').innerHTML = `
+        <h1>Markorð - Lota 2 - A2.2</h1>
+        <div class="progress-container"><div id="progress-bar"></div></div>
+        
+        <div class="lang-selector">
+            <label for="languageSelect"><b>🌍 Veldu tungumál:</b></label>
+            <select id="languageSelect" onchange="updateUI()">
+                <option value="da">Danska – Dansk</option>
+                <option value="en" selected>Enska – English</option>
+                <option value="tl">Filippseyska – Tagalog / Filipino</option>
+                <option value="fr">Franska – Français</option>
+                <option value="lv">Lettneska – Latviešu</option>
+                <option value="lt">Litháíska – Lietuvių</option>
+                <option value="no">Norska – Norsk</option>
+                <option value="pt">Portúgalska – Português</option>
+                <option value="pl">Pólska – Polski</option>
+                <option value="ro">Rúmenska – Română</option>
+                <option value="ru">Rússneska – Русский</option>
+                <option value="es">Spænska – Español</option>
+                <option value="sv">Sænska – Svenska</option>
+                <option value="th">Tælenska – ภาษาไทย</option>
+                <option value="uk">Úkraínska – Українська</option>
+                <option value="vi">Víetnamska – Tiếng Việt</option>
+            </select>
+        </div>
+
+        <div id="counter"></div>
+        <div id="target"></div>
+        <div id="is-explanation"></div>
+        <br>
+        <button id="record-btn" class="btn" onclick="toggleRecord()">🎤 Tala</button>
+        <div id="spoken"></div>
+        <div id="result"></div>
+        <div id="media-box"></div>
+        <div class="nav-btns">
+            <button class="btn" style="background-color: #5f6368;" onclick="prevExercise()">⬅️ Fyrri</button>
+            <button class="btn" style="background-color: #5f6368;" onclick="nextExercise()">Næsta ➡️</button>
+        </div>
+    `;
+    updateUI();
+}
+
+function updateUI() {
+    clearTimeout(autoAdvanceTimer); 
+    const correctCount = updateProgress();
+
+    if (currentIndex >= exerciseData.length) {
+        if (correctCount === exerciseData.length) {
+            document.getElementById('app').innerHTML = `
+                <div class="progress-container"><div id="progress-bar" style="width: 100%;"></div></div>
+                <h1 style="color: #34a853; font-size: 2.5em;">Frábært! Þú náðir 100% árangri! 🎉</h1>
+                <p style="font-size: 1.2em; color: #555;">Skrifaðu nafnið þitt hér að neðan til að sækja viðurkenningarskjalið þitt.</p>
+                <input type="text" id="studentName" placeholder="Skrifaðu nafnið þitt hér" autocomplete="off"><br>
+                <button id="cert-btn" class="btn" style="background-color: #1a73e8; font-size: 1.5em; padding: 15px 30px; margin-top: 10px;" onclick="downloadCert()">🏆 Sækja viðurkenningarskjal</button>
+                <br><br>
+                <button class="btn" style="background-color: #5f6368;" onclick="location.reload()">🔄 Byrja aftur</button>
+            `;
+        } else {
+            document.getElementById('app').innerHTML = `
+                <div class="progress-container"><div id="progress-bar" style="width: ${(correctCount/exerciseData.length)*100}%;"></div></div>
+                <h1 style="color: #fbbc05; font-size: 2em;">Þú ert næstum því búin(n)!</h1>
+                <p style="font-size: 1.2em;">Þú hefur klárað ${correctCount} af ${exerciseData.length} orðum með 100% árangri.</p>
+                <p style="font-size: 1.1em; color: #555;">Farðu til baka og reyndu aftur við þau orð sem vantaði upp á til að fá skjalið.</p>
+                <button class="btn" style="background-color: #fbbc05; color: #000;" onclick="findNextUnfinished()">➡️ Fara á orð sem vantar</button>
+            `;
+        }
+        return;
+    }
+
+    const curr = exerciseData[currentIndex];
+    
+    const langSelect = document.getElementById('languageSelect');
+    const selectedLang = langSelect ? langSelect.value : 'en';
+
+    document.getElementById('target').innerHTML = curr.text;
+    document.getElementById('is-explanation').innerHTML = curr.is_exp;
+    document.getElementById('counter').innerText = `Orð ${currentIndex + 1} af ${exerciseData.length}`;
+    
+    document.getElementById('media-box').innerHTML = curr.translations[selectedLang] || "Þýðing ekki til / Translation missing";
+
+    const savedScore = userScores[currentIndex];
+    const savedText = userSpoken[currentIndex];
+
+    if (savedScore !== null) {
+        document.getElementById('result').innerText = `Einkunn: ${savedScore}%`;
+        document.getElementById('spoken').innerText = `Þú sagðir: "${savedText}"`;
+    } else {
+        document.getElementById('result').innerText = "";
+        document.getElementById('spoken').innerText = "";
+    }
+}
+
+function nextExercise() {
+    currentIndex++;
+    updateUI();
+}
+
+function prevExercise() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        updateUI();
+    }
+}
+
+function toggleRecord() {
+    if (!recognition) return;
+
+    const btn = document.getElementById('record-btn');
+    if (isRecording) {
+        recognition.stop();
+    } else {
+        try {
+            recognition.start();
+            isRecording = true;
+            btn.innerText = "🛑 Hlusta...";
+            btn.classList.add('recording');
+            document.getElementById('result').innerText = "Hlusta...";
+            document.getElementById('spoken').innerText = "";
+        } catch(e) {
+            console.log("Villa í upptöku: " + e);
+        }
+    }
+}
+
+if (recognition) {
+    recognition.onresult = (event) => {
+        let spoken = event.results[0][0].transcript;
+        spoken = spoken.trim().toLowerCase(); 
+
+        document.getElementById('spoken').innerText = `Þú sagðir: "${spoken}"`;
+        
+        const targetWord = exerciseData[currentIndex].text.toLowerCase();
+        
+        let score = (spoken === targetWord) ? 100 : 0;
+        
+        if (spoken.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g,"").trim() === targetWord) {
+            score = 100;
+        }
+        
+        document.getElementById('result').innerText = `Einkunn: ${score}%`;
+
+        userScores[currentIndex] = score;
+        userSpoken[currentIndex] = spoken;
+        
+        updateProgress();
+
+        if (score === 100) {
+            autoAdvanceTimer = setTimeout(() => {
+                nextExercise();
+            }, 1000); 
+        }
+    };
+}
+
+function downloadCert() {
+    const studentNameInput = document.getElementById('studentName');
+    const studentName = studentNameInput ? studentNameInput.value.trim() : "";
+    
+    if (studentName === "") {
+        alert("Vinsamlegast skrifaðu nafnið þitt fyrst!");
+        return;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 900;
+    canvas.height = 600;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.strokeStyle = '#1a73e8';
+    ctx.lineWidth = 15;
+    ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+
+    ctx.strokeStyle = '#fbbc05';
+    ctx.lineWidth = 5;
+    ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
+    
+    ctx.fillStyle = '#1a73e8';
+    ctx.textAlign = 'center';
+    ctx.font = 'bold 50px Arial';
+    ctx.fillText('Viðurkenning', canvas.width / 2, 140);
+    
+    ctx.fillStyle = '#333333';
+    ctx.font = '24px Arial';
+    ctx.fillText('Þetta skjal staðfestir að', canvas.width / 2, 220);
+    
+    ctx.fillStyle = '#000000';
+    ctx.font = 'bold 45px Arial';
+    ctx.fillText(studentName, canvas.width / 2, 290);
+    
+    ctx.fillStyle = '#333333';
+    ctx.font = '24px Arial';
+    ctx.fillText('hefur lokið æfingunni með glæsibrag:', canvas.width / 2, 360);
+
+    ctx.fillStyle = '#1a73e8';
+    ctx.font = 'bold 26px Arial';
+    ctx.fillText('Markorð - Lota 2 - A2.2', canvas.width / 2, 420);
+    
+    ctx.fillStyle = '#34a853';
+    ctx.font = 'italic 28px Arial';
+    ctx.fillText('Frábær árangur! Haltu áfram að æfa þig.', canvas.width / 2, 490);
+
+    const dateString = new Date().toLocaleDateString('is-IS');
+    ctx.fillStyle = '#666666';
+    ctx.font = '18px Arial';
+    ctx.fillText('Dagsetning: ' + dateString, canvas.width / 2, 540);
+    
+    const link = document.createElement('a');
+    link.download = `Vidurkenning_${studentName.replace(/\s+/g, '_')}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    
+    const btn = document.getElementById('cert-btn');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = "✅ Skjal sótt";
+        btn.style.backgroundColor = "#5f6368";
+        btn.style.cursor = "not-allowed";
+        btn.style.opacity = "0.7";
+    }
+}
+</script>
+
+</body>
+</html>
